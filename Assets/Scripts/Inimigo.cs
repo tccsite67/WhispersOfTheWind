@@ -31,6 +31,7 @@ public class Inimigo : MonoBehaviour
     private SpriteRenderer spriteRenderer;
     private Collider2D col;
     private Transform player;
+    private float targetX = 0;
 
     [Header("Recompensa de XP")]
     public int xpDrop = 15;
@@ -49,7 +50,7 @@ public class Inimigo : MonoBehaviour
         GameObject p = GameObject.FindWithTag("Player");
         if (p != null) player = p.transform;
 
-        AtualizarDirecaoVisual();
+        OlharPara(targetX);
     }
 
     void Update()
@@ -66,6 +67,7 @@ public class Inimigo : MonoBehaviour
             Patrulhar();
 
         ControlarAtaque();
+        OlharPara(targetX);
     }
 
     // ----------------------------------------------------------
@@ -85,7 +87,7 @@ public class Inimigo : MonoBehaviour
     // ----------------------------------------------------------
     void Patrulhar()
     {
-        float targetX = movingRight ? pontoB.position.x : pontoA.position.x;
+        targetX = movingRight ? pontoB.position.x : pontoA.position.x;
 
         float direction = Mathf.Sign(targetX - transform.position.x);
 
@@ -96,7 +98,6 @@ public class Inimigo : MonoBehaviour
         if (Mathf.Abs(transform.position.x - targetX) < 0.12f)
             movingRight = !movingRight;
 
-        AtualizarDirecaoVisual();
         anim.SetFloat("Velocidade", Mathf.Abs(rb.velocity.x));
     }
 
@@ -118,7 +119,6 @@ public class Inimigo : MonoBehaviour
         {
             rb.velocity = new Vector2(0f, rb.velocity.y);
             // ficar olhando para o player, sem teleport
-            OlharPara(player.position.x);
             anim.SetFloat("Velocidade", 0);
             return;
         }
@@ -127,7 +127,6 @@ public class Inimigo : MonoBehaviour
         if (direction > 0f && nextX > limitRight)
         {
             rb.velocity = new Vector2(0f, rb.velocity.y);
-            OlharPara(player.position.x);
             anim.SetFloat("Velocidade", 0);
             return;
         }
@@ -136,7 +135,7 @@ public class Inimigo : MonoBehaviour
         movingRight = direction > 0f;
         rb.velocity = new Vector2(direction * chaseSpeed, rb.velocity.y);
 
-        AtualizarDirecaoVisual();
+        targetX = player.position.x;
         anim.SetFloat("Velocidade", Mathf.Abs(rb.velocity.x));
     }
 
@@ -239,7 +238,6 @@ public class Inimigo : MonoBehaviour
         col.enabled = false;
 
         anim.SetBool("Vivo", false);
-        EfeitoDePiscar();
 
         Destroy(gameObject, 3f);
     }
@@ -248,10 +246,6 @@ public class Inimigo : MonoBehaviour
     // ----------------------------------------------------------
     // SUPORTE VISUAL
     // ----------------------------------------------------------
-    void AtualizarDirecaoVisual()
-    {
-        spriteRenderer.flipX = !movingRight;
-    }
 
     void OlharPara(float x)
     {

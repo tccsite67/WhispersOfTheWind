@@ -50,7 +50,7 @@ public class SistemaDeVida : MonoBehaviour
         if (animator != null)
         {
             animator.SetBool("Machucado", true);
-            yield return new WaitForSeconds(0.15f);
+            yield return new WaitForSeconds(0.5f);
             animator.SetBool("Machucado", false);
         }
     }
